@@ -11,7 +11,8 @@
 #include <memory.h>
 #include <unistd.h>
 #include <fcntl.h>
-#define int long long
+#define int intptr_t
+// long long 是8个字节。 在64位平台下，int型是占用4个字节，而long和long long都是占用8个字节的
 
 char *p, *lp, // current position in source code
      *data;   // data/bss pointer
@@ -330,8 +331,12 @@ void stmt()
   }
 }
 
+#undef int // Mac/clang needs this to compile
+
 int main(int argc, char **argv)
 {
+  #define int intptr_t
+
   int fd, bt, ty, poolsz, *idmain;
   int *pc, *sp, *bp, a, cycle; // vm registers
   int i, *t; // temps
