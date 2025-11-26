@@ -21,7 +21,7 @@ int *pc, *bp, *sp, ax, cycle; // virtual machine registers
 // instructions
 enum { LEA ,IMM ,JMP ,CALL,JZ  ,JNZ ,ENT ,ADJ ,LEV ,LI  ,LC  ,SI  ,SC  ,PUSH,
        OR  ,XOR ,AND ,EQ  ,NE  ,LT  ,GT  ,LE  ,GE  ,SHL ,SHR ,ADD ,SUB ,MUL ,DIV ,MOD ,
-       OPEN,READ,CLOS,PRTF,MALC,MSET,MCMP,EXIT };
+       OPEN,READ,CLOS,PRTF,MALC,FREE,MSET,MCMP,EXIT };
 
 // tokens and classes (operators last and in precedence order)
 enum {
@@ -62,7 +62,6 @@ void next() {
 
     while (token = *src) {
         ++src;
-        printf("line is: %ld\n", line);
 
         // parse token here
         if (token == '\n') {
@@ -343,6 +342,7 @@ int eval() {
         else if (op == READ) { ax = read(sp[2], (char *)sp[1], *sp); }
         else if (op == PRTF) { tmp = sp + pc[1]; ax = printf((char *)tmp[-1], tmp[-2], tmp[-3], tmp[-4], tmp[-5], tmp[-6]); }
         else if (op == MALC) { ax = (int)malloc(*sp);}
+        else if (op == FREE) free((void *)*sp);
         else if (op == MSET) { ax = (int)memset((char *)sp[2], sp[1], *sp);}
         else if (op == MCMP) { ax = memcmp((char *)sp[2], (char *)sp[1], *sp);}
         else {
@@ -395,7 +395,7 @@ int main(int argc, char **argv)
     ax = 0;
 
     src = "char else enum if int return sizeof while "
-          "open read close printf malloc memset memcmp exit void main";
+          "open read close printf malloc free memset memcmp exit void main";
 
      // add keywords to symbol table
     i = Char;
