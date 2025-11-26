@@ -7,6 +7,9 @@
 #include <unistd.h>
 #define int intptr_t
 
+int debug;    // print the executed instructions
+int assembly; // print out the assembly and source
+
 int token;                    // current token
 int token_val;                // value of current token (mainly for number)
 char *src, *old_src;          // pointer to source code string;
@@ -62,6 +65,22 @@ void next() {
         
         // parse token here
         if (token == '\n') {
+            if (assembly) {
+                // print compile info
+                printf("%d: %.*s", line, src-old_src, old_src);
+                old_src = src;
+
+                while (old_text < text) {
+                    printf("%8.4s", & "LEA ,IMM ,JMP ,CALL,JZ  ,JNZ ,ENT ,ADJ ,LEV ,LI  ,LC  ,SI  ,SC  ,PUSH,"
+                                      "OR  ,XOR ,AND ,EQ  ,NE  ,LT  ,GT  ,LE  ,GE  ,SHL ,SHR ,ADD ,SUB ,MUL ,DIV ,MOD ,"
+                                      "OPEN,READ,CLOS,PRTF,MALC,FREE,MSET,MCMP,EXIT"[*++old_text * 5]);
+
+                    if (*old_text <= ADJ)
+                        printf(" %d\n", *++old_text);
+                    else
+                        printf("\n");
+                }
+            }
             ++line;
         }
         else if (token == '#') {
@@ -1196,8 +1215,21 @@ void program() {
 
 int eval() {
     int op, *tmp;
+    cycle = 0;
     while (1) {
+        cycle ++;
         op = *pc++; // get next operation code
+        // print debug info
+        if (debug) {
+            printf("%d> %.4s", cycle,
+                   & "LEA ,IMM ,JMP ,CALL,JZ  ,JNZ ,ENT ,ADJ ,LEV ,LI  ,LC  ,SI  ,SC  ,PUSH,"
+                   "OR  ,XOR ,AND ,EQ  ,NE  ,LT  ,GT  ,LE  ,GE  ,SHL ,SHR ,ADD ,SUB ,MUL ,DIV ,MOD ,"
+                   "OPEN,READ,CLOS,PRTF,MALC,FREE,MSET,MCMP,EXIT"[op * 5]);
+            if (op <= ADJ)
+                printf(" %d\n", *pc);
+            else
+                printf("\n");
+        }
 
         if (op == IMM)       {ax = *pc++;}                                     // load immediate value to ax
         else if (op == LC)   {ax = *(char *)ax;}                               // load character to ax, address in ax
@@ -1261,6 +1293,22 @@ int main(int argc, char **argv)
 
     argc--;
     argv++;
+
+    // parse arguments
+    if (argc > 0 && **argv == '-' && (*argv)[1] == 's') {
+        assembly = 1;
+        --argc;
+        ++argv;
+    }
+    if (argc > 0 && **argv == '-' && (*argv)[1] == 'd') {
+        debug = 1;
+        --argc;
+        ++argv;
+    }
+    if (argc < 1) {
+        printf("usage: xc [-s] [-d] file ...\n");
+        return -1;
+    }
 
     poolsize = 256 * 1024; // arbitrary size
     line = 1;
