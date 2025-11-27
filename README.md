@@ -1,15 +1,18 @@
 # c4 - C in four functions
 
 An exercise in minimalism.
-
 Try the following:
-
     gcc -o c4 c4.c
     ./c4 hello.c
     ./c4 -s hello.c
     
     ./c4 c4.c hello.c
     ./c4 c4.c c4.c hello.c
+
+# c5 - C in four functions with switch-case and struct support
+    gcc -o c5 c5.c
+    ./c5 hellos.c
+    ./c5 -s hellos.c
 
 ## macOS
 修改 main 函数， 用 gcc 编译运行：
