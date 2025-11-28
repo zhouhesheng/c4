@@ -159,3 +159,6 @@ non_empty_statement ::= if_statement | while_statement | '{' statement '}'
 if_statement ::= 'if' '(' expression ')' statement ['else' non_empty_statement]
 
 while_statement ::= 'while' '(' expression ')' non_empty_statement
+
+
+# tinyc https://github.com/pandolia/tinyc
